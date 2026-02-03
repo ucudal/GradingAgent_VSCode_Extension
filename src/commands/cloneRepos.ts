@@ -9,22 +9,26 @@ import { StudentSubmission } from '../types';
 export function registerCloneReposCommand(context: vscode.ExtensionContext): void {
 	const disposable = vscode.commands.registerCommand('gradingagent.cloneRepos', async () => {
 		try {
-			// Find the estudiantes_repos.json file
-			const workspaceFolders = vscode.workspace.workspaceFolders;
+			// Get workspace folder - assume it's the Moodle submissions folder
+			let workspaceFolders = vscode.workspace.workspaceFolders;
+
 			if (!workspaceFolders || workspaceFolders.length === 0) {
-				vscode.window.showErrorMessage('No workspace folder open. Please open a workspace first.');
+				// No workspace open - show message and exit
+				vscode.window.showErrorMessage(
+					'Please open the folder with Moodle submissions first, then run this command again.'
+				);
 				return;
 			}
 
-			const workspacePath = workspaceFolders[0].uri.fsPath;
-			const jsonPath = path.join(workspacePath, 'estudiantes_repos.json');
+			const moodlePath = workspaceFolders[0].uri.fsPath;
+			const jsonPath = path.join(moodlePath, 'estudiantes_repos.json');
 
 			if (!fs.existsSync(jsonPath)) {
 				const response = await vscode.window.showErrorMessage(
-					'estudiantes_repos.json not found. Please run "Extract Student Repositories" first.',
+					'estudiantes_repos.json not found in this folder. Please run "Extract Student Repositories" first.',
 					'Run Extract Repos'
 				);
-				
+
 				if (response === 'Run Extract Repos') {
 					await vscode.commands.executeCommand('gradingagent.extractRepos');
 				}
@@ -36,9 +40,9 @@ export function registerCloneReposCommand(context: vscode.ExtensionContext): voi
 			const students: StudentSubmission[] = JSON.parse(fileContent);
 
 			// Filter students with valid repositories
-			const validStudents = students.filter(s => 
-				s.repositorio && 
-				s.repositorio !== 'Not found' && 
+			const validStudents = students.filter(s =>
+				s.repositorio &&
+				s.repositorio !== 'Not found' &&
 				s.repositorio.startsWith('http')
 			);
 
@@ -55,39 +59,23 @@ export function registerCloneReposCommand(context: vscode.ExtensionContext): voi
 			const choice = await vscode.window.showInformationMessage(
 				message,
 				{ modal: true },
-				'Clone All',
-				'Cancel'
+				'Clone All'
 			);
 
 			if (choice !== 'Clone All') {
 				return;
 			}
 
-			// Ask for source directory (where original Moodle folders are)
-			const sourceUri = await vscode.window.showOpenDialog({
-				canSelectFiles: false,
-				canSelectFolders: true,
-				canSelectMany: false,
-				openLabel: 'Select Source Directory',
-				title: 'Select directory with original Moodle submission folders'
-			});
-
-			if (!sourceUri || sourceUri.length === 0) {
-				vscode.window.showWarningMessage('No source directory selected');
-				return;
-			}
-
-			const sourcePath = sourceUri[0].fsPath;
-
 			// Clone repositories with progress
+			let successCount = 0;
+			let failureCount = 0;
+			const failures: { student: string; error: string }[] = [];
+
 			await vscode.window.withProgress({
 				location: vscode.ProgressLocation.Notification,
 				title: 'Cloning student repositories',
 				cancellable: true
 			}, async (progress, token) => {
-				let successCount = 0;
-				let failureCount = 0;
-				const failures: { student: string; error: string }[] = [];
 
 				for (let i = 0; i < validStudents.length; i++) {
 					if (token.isCancellationRequested) {
@@ -96,24 +84,23 @@ export function registerCloneReposCommand(context: vscode.ExtensionContext): voi
 					}
 
 					const student = validStudents[i];
-					const percent = Math.round(((i + 1) / validStudents.length) * 100);
-					
+
 					progress.report({
-						increment: 100 / validStudents.length,
-						message: `${i + 1}/${validStudents.length}: ${student.nombre}`
+						increment: (100 / validStudents.length),
+						message: `[${i + 1}/${validStudents.length}] ${student.nombre}`
 					});
 
 					try {
 						// Find the student's folder (from carpeta field)
-						const studentFolder = path.join(sourcePath, student.carpeta);
-						
+						const studentFolder = path.join(moodlePath, student.carpeta);
+
 						if (!fs.existsSync(studentFolder)) {
 							throw new Error(`Student folder not found: ${student.carpeta}`);
 						}
 
 						// Create repo subfolder
 						const repoFolder = path.join(studentFolder, 'repo');
-						
+
 						if (fs.existsSync(repoFolder)) {
 							// Check if it's already a git repository
 							const gitPath = path.join(repoFolder, '.git');
@@ -126,7 +113,7 @@ export function registerCloneReposCommand(context: vscode.ExtensionContext): voi
 								fs.rmSync(repoFolder, { recursive: true, force: true });
 							}
 						}
-						
+
 						// Create the repo folder
 						fs.mkdirSync(repoFolder, { recursive: true });
 
@@ -142,26 +129,26 @@ export function registerCloneReposCommand(context: vscode.ExtensionContext): voi
 						console.error(`Failed to clone repo for ${student.nombre}:`, errorMsg);
 					}
 				}
-
-				// Show summary
-				let summaryMessage = `✅ Cloning completed!\n\n` +
-					`Success: ${successCount}/${validStudents.length}\n` +
-					`Failed: ${failureCount}/${validStudents.length}`;
-
-				if (failures.length > 0 && failures.length <= 5) {
-					summaryMessage += '\n\nFailures:\n' + 
-						failures.map(f => `- ${f.student}: ${f.error}`).join('\n');
-				} else if (failures.length > 5) {
-					summaryMessage += '\n\nSee console for failure details.';
-					console.log('Failed clones:', failures);
-				}
-
-				if (failureCount === 0) {
-					vscode.window.showInformationMessage(summaryMessage);
-				} else {
-					vscode.window.showWarningMessage(summaryMessage);
-				}
 			});
+
+			// Show summary after progress completes
+			let summaryMessage = `✅ Cloning completed!\n\n` +
+				`Success: ${successCount}/${validStudents.length}\n` +
+				`Failed: ${failureCount}/${validStudents.length}`;
+
+			if (failures.length > 0 && failures.length <= 5) {
+				summaryMessage += '\n\nFailures:\n' +
+					failures.map(f => `- ${f.student}: ${f.error}`).join('\n');
+			} else if (failures.length > 5) {
+				summaryMessage += '\n\nSee console for failure details.';
+				console.log('Failed clones:', failures);
+			}
+
+			if (failureCount === 0) {
+				vscode.window.showInformationMessage(summaryMessage);
+			} else {
+				vscode.window.showWarningMessage(summaryMessage);
+			}
 
 		} catch (error) {
 			const errorMsg = error instanceof Error ? error.message : String(error);
@@ -178,9 +165,9 @@ export function registerCloneReposCommand(context: vscode.ExtensionContext): voi
 async function cloneRepository(repoUrl: string, targetPath: string): Promise<void> {
 	return new Promise((resolve, reject) => {
 		const { exec } = require('child_process');
-		
+
 		const command = `git clone "${repoUrl}" "${targetPath}"`;
-		
+
 		exec(command, (error: Error | null, stdout: string, stderr: string) => {
 			if (error) {
 				reject(new Error(stderr || error.message));
