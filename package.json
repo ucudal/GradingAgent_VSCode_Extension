@@ -28,6 +28,10 @@
       {
         "command": "gradingagent.openGradingAgent",
         "title": "Grading Agent: Open Agent File and Copy to Repositories"
+      },
+      {
+        "command": "gradingagent.addReposToWorkspace",
+        "title": "Grading Agent: Add Student's Repositories to Workspace"
       }
     ]
   },
