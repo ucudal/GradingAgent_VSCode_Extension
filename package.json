@@ -22,16 +22,16 @@
         "title": "Grading Agent: Clone Student's Repositories"
       },
       {
-        "command": "gradingagent.deleteClonedRepos",
+        "command": "gradingagent.deleteRepos",
         "title": "Grading Agent: Delete Cloned Student's Repositories"
       },
       {
-        "command": "gradingagent.openGradingAgent",
-        "title": "Grading Agent: Open Agent File and Copy to Repositories"
+        "command": "gradingagnet.openGradingAgent",
+        "title": "Grading Agent: Open GradingAgent"
       },
       {
-        "command": "gradingagent.addReposToWorkspace",
-        "title": "Grading Agent: Add Student's Repositories to Workspace"
+        "command": "gradingagent.gradeSubmission",
+        "title": "Grading Agent: Grade Submission"
       }
     ]
   },
