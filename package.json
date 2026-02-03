@@ -9,13 +9,17 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [ ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "gradingagent.helloWorld",
-        "title": "Hello World"
+        "command": "gradingagent.extractRepos",
+        "title": "Grading Agente: Extract Student's Repositories"
+      },
+      {
+        "command": "gradingagent.cloneRepos",
+        "title": "Grading Agent: Clone Student's Repositories"
       }
     ]
   },
