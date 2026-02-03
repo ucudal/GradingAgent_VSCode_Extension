@@ -12,11 +12,11 @@ export async function saveResults(results: StudentSubmission[], outputDir: strin
 	}
 
 	// Save as JSON
-	const jsonPath = path.join(outputDir, 'estudiantes_repos.json');
+	const jsonPath = path.join(outputDir, 'students_repos.json');
 	fs.writeFileSync(jsonPath, JSON.stringify(results, null, 2), 'utf-8');
 
 	// Save as CSV
-	const csvPath = path.join(outputDir, 'estudiantes_repos.csv');
+	const csvPath = path.join(outputDir, 'students_repos.csv');
 	const csvLines = ['nombre,id,repositorio,carpeta'];
 	for (const result of results) {
 		// Escape fields containing commas
@@ -33,7 +33,7 @@ export async function saveResults(results: StudentSubmission[], outputDir: strin
 	fs.writeFileSync(csvPath, csvLines.join('\n'), 'utf-8');
 
 	// Save as formatted text
-	const txtPath = path.join(outputDir, 'estudiantes_repos.txt');
+	const txtPath = path.join(outputDir, 'students_repos.txt');
 	const lines = [
 		'='.repeat(80),
 		'STUDENTS AND REPOSITORIES LIST',

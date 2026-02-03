@@ -21,11 +21,11 @@ export function registerCloneReposCommand(context: vscode.ExtensionContext): voi
 			}
 
 			const moodlePath = workspaceFolders[0].uri.fsPath;
-			const jsonPath = path.join(moodlePath, 'estudiantes_repos.json');
+			const jsonPath = path.join(moodlePath, 'students_repos.json');
 
 			if (!fs.existsSync(jsonPath)) {
 				const response = await vscode.window.showErrorMessage(
-					'estudiantes_repos.json not found in this folder. Please run "Extract Student Repositories" first.',
+					'students_repos.json not found in this folder. Please run "Extract Student\'s Repositories"  first.',
 					'Run Extract Repos'
 				);
 

@@ -20,6 +20,10 @@
       {
         "command": "gradingagent.cloneRepos",
         "title": "Grading Agent: Clone Student's Repositories"
+      },
+      {
+        "command": "gradingagent.deleteClonedRepos",
+        "title": "Grading Agent: Delete Cloned Repositories"
       }
     ]
   },

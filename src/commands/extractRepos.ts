@@ -5,7 +5,7 @@ import { processSubmissions } from '../utils/moodleParser';
 import { saveResults } from '../utils/fileWriter';
 
 /**
- * Extract Student Repositories command
+ * Extract Student's Repositories command
  * Processes Moodle submission folders and extracts student information
  */
 export function registerExtractReposCommand(context: vscode.ExtensionContext): void {
@@ -67,14 +67,14 @@ export function registerExtractReposCommand(context: vscode.ExtensionContext): v
 			}
 
 			const message = `✅ Processed ${results!.length} students\n\nGenerated files:\n` +
-				`- estudiantes_repos.json\n- estudiantes_repos.csv\n- estudiantes_repos.txt`;
+				`- students_repos.json\n- students_repos.csv\n- students_repos.txt`;
 
 			const openFiles = 'Open files';
 			const choice = await vscode.window.showInformationMessage(message, openFiles);
 
 			if (choice === openFiles) {
 				// Open JSON file in editor
-				const jsonPath = path.join(outputPath, 'estudiantes_repos.json');
+				const jsonPath = path.join(outputPath, 'students_repos.json');
 				const doc = await vscode.workspace.openTextDocument(jsonPath);
 				await vscode.window.showTextDocument(doc);
 			}
