@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { registerExtractReposCommand } from './commands/extractRepos';
+import { registerCloneReposCommand } from './commands/cloneRepos';
 
 /**
  * Extension activation
@@ -10,6 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Register all commands
 	registerExtractReposCommand(context);
+	registerCloneReposCommand(context);
 }
 
 /**
