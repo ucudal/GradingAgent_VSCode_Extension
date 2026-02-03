@@ -77,23 +77,23 @@ export function registerGradeSubmissionCommand(context: vscode.ExtensionContext)
 
 		// Check if grading agent exists in workspace root .github/agents
 		const agentPath = path.join(rootPath, '.github', 'agents');
-			const agentExists = fs.existsSync(agentPath);
+		const agentExists = fs.existsSync(agentPath);
 
-			if (!agentExists) {
-				vscode.window.showWarningMessage(
-					'No grading agent found in workspace .github/agents folder. Please run OpenGradingAgent first.'
-				);
-				return;
-			}
+		if (!agentExists) {
+			vscode.window.showWarningMessage(
+				'No grading agent found in workspace .github/agents folder. Please run OpenGradingAgent first.'
+			);
+			return;
+		}
 
-			// Find the grading agent file
-			const agentFiles = fs.readdirSync(agentPath);
-			const agentFile = agentFiles.find(f => f.endsWith('.md'));
+		// Find the grading agent file
+		const agentFiles = fs.readdirSync(agentPath);
+		const agentFile = agentFiles.find(f => f.endsWith('.md'));
 
-			if (!agentFile) {
-				vscode.window.showWarningMessage('No agent markdown file found in workspace .github/agents/');
-				return;
-			}
+		if (!agentFile) {
+			vscode.window.showWarningMessage('No agent markdown file found in workspace .github/agents/');
+			return;
+		}
 
 		// Prepare the prompt with agent reference
 		const agentName = path.basename(agentFile, '.md');
@@ -102,27 +102,25 @@ export function registerGradeSubmissionCommand(context: vscode.ExtensionContext)
 		// Copy prompt to clipboard
 		await vscode.env.clipboard.writeText(prompt);
 
-		// Try to open chat with the query (may not work with agent references)
+		// Open chat with the Grading Agent and paste the prompt
 		try {
-			await vscode.commands.executeCommand('workbench.action.chat.open', {
-				query: prompt
-			});
+			await vscode.commands.executeCommand('workbench.action.chat.openGrading Agent');
+			// Small delay to ensure chat is ready
+			await new Promise(resolve => setTimeout(resolve, 500));
+			// Paste the prompt into chat
+			await vscode.commands.executeCommand('editor.action.clipboardPasteAction');
 		} catch {
-			// Fallback to just opening the chat
+			// Fallback: Open standard chat with the Grading Agent
 			await vscode.commands.executeCommand('workbench.action.chat.open');
+			// Small delay to ensure chat is ready
+			await new Promise(resolve => setTimeout(resolve, 500));
+			// Paste the prompt into chat
+			await vscode.commands.executeCommand('editor.action.clipboardPasteAction');
 		}
-
-		// Notify user with instructions
-		const response = await vscode.window.showInformationMessage(
-			`Agent: @${agentName}\n\nThe prompt has been copied to clipboard. Press Cmd+V (Mac) or Ctrl+V (Windows/Linux) to paste it in the chat window.`,
-			'I pasted it'
-			);
-
-		} catch (error) {
-			const errorMsg = error instanceof Error ? error.message : String(error);
-			vscode.window.showErrorMessage(`Error grading submission: ${errorMsg}`);
-		}
+	} catch (error) {
+		const errorMsg = error instanceof Error ? error.message : String(error);
+		vscode.window.showErrorMessage(`Error grading submission: ${errorMsg}`);
+	}
 	});
 
-	context.subscriptions.push(disposable);
-}
+	context.subscriptions.push(disposable);}
