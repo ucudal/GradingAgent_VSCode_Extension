@@ -23,7 +23,11 @@
       },
       {
         "command": "gradingagent.deleteClonedRepos",
-        "title": "Grading Agent: Delete Cloned Repositories"
+        "title": "Grading Agent: Delete Cloned Student's Repositories"
+      },
+      {
+        "command": "gradingagent.openGradingAgent",
+        "title": "Grading Agent: Open Agent File and Copy to Repositories"
       }
     ]
   },

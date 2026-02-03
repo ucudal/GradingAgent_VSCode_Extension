@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { registerExtractReposCommand } from './commands/extractRepos';
 import { registerCloneReposCommand } from './commands/cloneRepos';
 import { registerDeleteClonedReposCommand } from './commands/deleteClonedRepos';
+import { registerOpenAndCopyGradingAgentCommand } from './commands/openAndCopyGradingAgent';
 
 /**
  * Extension activation
@@ -14,6 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
 	registerExtractReposCommand(context);
 	registerCloneReposCommand(context);
 	registerDeleteClonedReposCommand(context);
+	registerOpenAndCopyGradingAgentCommand(context);
 }
 
 /**
