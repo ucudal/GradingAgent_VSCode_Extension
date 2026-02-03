@@ -3,6 +3,7 @@
   "displayName": "GradingAgent",
   "description": "An extension to automate grading of programming assignments as much as possible",
   "version": "0.0.1",
+  "icon": "icon.jpeg",
   "engines": {
     "vscode": "^1.108.1"
   },
