@@ -2,7 +2,8 @@ out
 dist
 node_modules
 .vscode-test/
-*.vsix.DS_Store
+*.vsix
+.DS_Store
 *.log
 *.swp
 *.swo
