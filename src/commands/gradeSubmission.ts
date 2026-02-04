@@ -81,23 +81,24 @@ export function registerGradeSubmissionCommand(context: vscode.ExtensionContext)
 
 		if (!agentExists) {
 			vscode.window.showWarningMessage(
-				'No grading agent found in workspace .github/agents folder. Please run OpenGradingAgent first.'
+				'No grading agent found in workspace .github/agents folder. Please run "Open Grading Agent" first.'
 			);
 			return;
 		}
 
-		// Find the grading agent file
-		const agentFiles = fs.readdirSync(agentPath);
-		const agentFile = agentFiles.find(f => f.endsWith('.md'));
+		// Look for the standard grading agent file
+		const agentFile = 'grade.agent.md';
+		const agentFilePath = path.join(agentPath, agentFile);
 
-		if (!agentFile) {
-			vscode.window.showWarningMessage('No agent markdown file found in workspace .github/agents/');
+		if (!fs.existsSync(agentFilePath)) {
+			vscode.window.showWarningMessage(
+				'Grading agent file not found at .github/agents/grade.agent.md. Please run "Open Grading Agent" first.'
+			);
 			return;
 		}
 
 		// Prepare the prompt with agent reference
-		const agentName = path.basename(agentFile, '.md');
-		const prompt = `@${agentName} grade the submission located at ${slnPath}`;
+		const prompt = `@grade.agent grade the submission located at ${slnPath}`;
 
 		// Copy prompt to clipboard
 		await vscode.env.clipboard.writeText(prompt);

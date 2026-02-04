@@ -37,9 +37,8 @@ export function registerOpenGradingAgentCommand(context: vscode.ExtensionContext
 			}
 
 			const sourceFile = fileUri[0].fsPath;
-			const sourceFileName = path.basename(sourceFile);
 			const agentsFolder = path.join(workspacePath, '.github', 'agents');
-			const targetFile = path.join(agentsFolder, sourceFileName);
+			const targetFile = path.join(agentsFolder, 'grade.agent.md');
 
 			if (!fs.existsSync(agentsFolder)) {
 				fs.mkdirSync(agentsFolder, { recursive: true });
@@ -48,7 +47,7 @@ export function registerOpenGradingAgentCommand(context: vscode.ExtensionContext
 			fs.copyFileSync(sourceFile, targetFile);
 
 			vscode.window.showInformationMessage(
-				`✅ Copied ${sourceFileName} to .github/agents in the workspace.`
+				`✅ Copied grading agent to .github/agents/grade.agent.md`
 			);
 		} catch (error) {
 			const errorMsg = error instanceof Error ? error.message : String(error);
