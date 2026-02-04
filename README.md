@@ -14,16 +14,14 @@ This extension assumes:
   [assignment
   submissions](https://docs.moodle.org/501/en/Using_Assignment#Downloading_student_submissions).
 
-* That folder has a subfolder for each student submission.
+* That folder has a subfolder for each student submission. Each subfolder name
+  includes student name, student id, and ends with the suffix
+  `_assignsubmission_onlinetext`; and includes a file `onlinetext.html` with the
+  text submitted by the student.
 
-* Each subfolder has a file ending with the suffix
-  `_assignsubmission_onlinetext` with a link to a remote repository with the
-  student's solution to the assignment; or it has the actual files with the
-  solution to the assignment.
-
-  In the first case, the assignment in Moodle has been configured to accept
-  online text only. In the second case, the assignment is configured to accept
-  files.
+* The assignment in Moodle has been configured to accept online text only. The
+  student submits a link to a repository containing the solution to the
+  assigment.
 
 * Teacher already has an `.agent.md` file with the GitHub Copilot Custom Agent
   for grading students' submissions. This extension will copy the file in the
