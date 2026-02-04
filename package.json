@@ -50,6 +50,10 @@
       {
         "command": "gradingagent.gradeSubmission",
         "title": "Grading Agent: Grade Submission"
+      },
+      {
+        "command": "gradingagent.configureChatAutoApprove",
+        "title": "Grading Agent: Configure Chat Auto Approve"
       }
     ]
   },
