@@ -9,8 +9,9 @@ in Visual Studio Code.
 
 This extension assumes:
 
-* The folder currently opened in Visual Studio Code has been downloaded from
-  [Moodle](https://moodle.org) and contains students' [assignment
+* The workspace folder currently opened in Visual Studio Code has been
+  downloaded from [Moodle](https://moodle.org) and contains students'
+  [assignment
   submissions](https://docs.moodle.org/501/en/Using_Assignment#Downloading_student_submissions).
 
 * That folder has a subfolder for each student.
@@ -44,7 +45,17 @@ This extension assumes:
 * The command **Grading Agent: Grade Submission** opens the [Github Copilot chat
   window](https://code.visualstudio.com/docs/copilot/chat/getting-started-chat)
   and pastes a prompt to use the provided grading agent to grade the opened
-  submission.
+  submission. The user should send the prompt to GitHub Copilot chat window.
+
+* The command **Grading Agent: Configure Chat Auto Approve** configures Visual
+  Studio Code settings to auto-approve dotnet commands in the chat window.
+
+* The command **Grading Agent: Delete Grades** deletes grade files from the
+  workspace and student folders. These files are generated from the grading
+  agent, so any name is valid; see the [grading agent
+  example](#grading-agent-example) below. This extension assumes there is a
+  `grades.csv` file in the workspace folder and a `GRADE.md`, but names can be
+  configured; see [configuration](#configuration) below.
 
 ## Requirements
 
@@ -52,6 +63,8 @@ This extension has been tested in Visual Studio Code version 1.108.
 
 As mentioned above, the extension assumes the folder opened in Visual Studio
 Code is an assignment exported from Moodle, but Moodle is not required.
+
+A GitHub Copilot Pro subscription is required in order to run the grading agent.
 
 ## Grading Agent Example
 
@@ -115,6 +128,27 @@ grades.
 
 The feedback for each submission is generated in a `GRADE.md` file in each
 subfolder.
+
+## Configuration
+
+You can customize the grade file names through Visual Studio Code settings:
+
+**Workspace configuration**, in `.vscode/settings.json`:
+```json
+{
+  "gradingagent.gradesFileName": "grades.csv",
+  "gradingagent.studentGradeFileName": "GRADE.md"
+}
+```
+
+**Global configuration**, in user settings:
+
+Open Visual Studio Code settings and search for `gradingagent` to set:
+
+* `gradingagent.gradesFileName`: Name of the grades file in workspace root
+
+* `gradingagent.studentGradeFileName`: Name of the grade file in each student
+  folder
 
 ## Known Issues
 

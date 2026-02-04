@@ -5,6 +5,7 @@ import { registerDeleteClonedReposCommand } from './commands/deleteClonedRepos';
 import { registerOpenGradingAgentCommand } from './commands/openGradingAgent';
 import { registerGradeSubmissionCommand } from './commands/gradeSubmission';
 import { registerConfigureChatAutoApproveCommand } from './commands/configureChatAutoApprove';
+import { registerDeleteGradesCommand } from './commands/deleteGrades';
 
 /**
  * Extension activation
@@ -20,6 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
 	registerOpenGradingAgentCommand(context);
 	registerGradeSubmissionCommand(context);
 	registerConfigureChatAutoApproveCommand(context);
+	registerDeleteGradesCommand(context);
 }
 
 /**

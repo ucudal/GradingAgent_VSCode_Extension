@@ -56,8 +56,27 @@
       {
         "command": "gradingagent.configureChatAutoApprove",
         "title": "Grading Agent: Configure Chat Auto Approve"
+      },
+      {
+        "command": "gradingagent.deleteGrades",
+        "title": "Grading Agent: Delete Grades"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Grading Agent",
+      "properties": {
+        "gradingagent.gradesFileName": {
+          "type": "string",
+          "default": "grades.csv",
+          "description": "Name of the grades file stored in the workspace root"
+        },
+        "gradingagent.studentGradeFileName": {
+          "type": "string",
+          "default": "GRADE.md",
+          "description": "Name of the grade file stored inside each student folder"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
