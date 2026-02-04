@@ -1,73 +1,130 @@
-# gradingagent README
+# Grading Agent
 
-This is the README for your extension "gradingagent". After writing up a brief description, we recommend including the following sections.
+This extension simplifies grading students' submissions using a [GitHub Copilot
+Custom
+Agent](https://code.visualstudio.com/docs/copilot/customization/custom-agents)
+in Visual Studio Code.
+
+## Assumptions
+
+This extension assumes:
+
+* The folder currently opened in Visual Studio Code has been downloaded from
+  [Moodle](https://moodle.org) and contains students' [assignment
+  submissions](https://docs.moodle.org/501/en/Using_Assignment#Downloading_student_submissions).
+
+* That folder has a subfolder for each student.
+
+* Each subfolder has a file ending with the suffix `_assignsubmission_onlinetext`
+  with a link to a remote repository with the student's solution to the assignment; or
+  it has the actual files with the solution to the assignment.
+
+* Teacher has created an `agent.md` file with the GitHub Copilot Custom Agent
+  for grading students' submissions. This extension will copy the file in the
+  appropriate location.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your
-extension in action. Image paths are relative to this README file.
+* The command **Grading Agent: Extract Students' Repositories** looks for files
+  with the suffix `_assignsubmission_onlinetext` in subfolders and creates a
+  `students_repos.json` file with the links to the repositories. A `.csv` and a
+  `.txt` file with the same information are also created.
 
-For example if there is an image subfolder under your extension project
-workspace:
+* The command **Grading Agent: Clone Students' Repositories** clones each
+  repository in a `repo` folder in each subfolder. Links to the repositories are
+  taken from the `students_repos.json` file.
 
-\!\[feature X\]\(images/feature-x.png\)
+* The command **Grading Agent: Delete Cloned Students' Repositories** deletes
+  previously cloned repositories.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+* The command **Grading Agent: Open Grading Agent** copies the selected file to
+  the appropriate location. See [Grading Agent Example](#grading-agent-example)
+  below.
+
+* The command **Grading Agent: Grade Submission** opens the [Github Copilot chat
+  window](https://code.visualstudio.com/docs/copilot/chat/getting-started-chat)
+  and pastes a prompt to use the provided grading agent to grade the opened
+  submission.
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+This extension has been tested in Visual Studio Code version 1.108.
 
-## Extension Settings
+As mentioned above, the extension assumes the folder opened in Visual Studio
+Code is an assignment exported from Moodle, but Moodle is not required.
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+## Grading Agent Example
 
-For example:
+A grading agent is just a Markdown file with instructions to grade an
+assignment submission.
 
-This extension contributes the following settings:
+Here's a complete grading agent:
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+```markdown
+---
+name: 'Grading Agent'
+description: 'This agent grades students assignments based on a rubric.'
+tools: ["read", "search", "edit", "execute"]
+---
+
+# Instructions
+
+You're a teaching assistant in a programming course.
+
+Your task is to grade student assignments based on the rubric in
+[this file](../../README.md) to evaluate and calculate points.
+
+The assignment is in the folder where the currently opened file is located.
+
+Explain the reasoning behind the score, including what's done well and what's
+wrong or needs improvement in student's submission.
+
+In addition to the rubric:
+
+* If the code doesn't compile, grade is always 0.
+
+* If there are tests and they don't pass, grade is always 0.
+
+* If there are compiler warnings, deduct 2 points total from the final
+  grade.
+
+* If there are logic errors, even if tests pass, deduct 2 points from the final
+  grade, for each logic error found.
+
+* Do not deduct points for issues not mentioned in the rubric or in these
+  instructions.
+
+There should be a [grades.csv](../../grades.csv) file, if not, create one. In
+that file, add a new line with the student identifier and the grade assigned.
+Folder names and student's identifiers are [here](../../students_repos.json)
+
+In the assignment submission folder, create a GRADE.md file with an explanation
+of the score. The language should be Spanish.
+```
+
+In order for this grading agent example to work, there should be a `README.md`
+file in the folder opened in Visual Studio Code, or a `README.md` in each
+subfolder, with the instructions for the assigment given to the students and a
+rubric with the grading criteria.
+
+References to files used by the grading agent are included as markdown links.
+
+In this example all grades are collected in a `grades.csv` file in the folder
+opened in Visual Studio Code; it has the format that Moodle uses to import
+grades.
+
+The feedback for each submission is generated in a `GRADE.md` file in each
+subfolder.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+This extensions depends on the grading agent provided. The result are as good as
+the grading agent is.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.0.1
 
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+Initial release of the extension.
 
 **Enjoy!**

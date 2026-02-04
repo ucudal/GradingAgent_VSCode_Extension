@@ -6,7 +6,7 @@ import * as path from 'path';
  * Open grading agent file and copy it to the workspace .github/agents folder
  */
 export function registerOpenGradingAgentCommand(context: vscode.ExtensionContext): void {
-	const disposable = vscode.commands.registerCommand('gradingagnet.openGradingAgent', async () => {
+	const disposable = vscode.commands.registerCommand('gradingagent.openGradingAgent', async () => {
 		try {
 			const workspaceFolders = vscode.workspace.workspaceFolders;
 

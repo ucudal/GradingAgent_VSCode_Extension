@@ -3,10 +3,27 @@
   "displayName": "GradingAgent",
   "description": "An extension to automate grading of programming assignments as much as possible",
   "version": "0.0.1",
+  "publisher": "fmachadopiriz",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ucudal/GradingAgent_VSCode_Extension.git"
+  },
+  "author": "Fernando Machado Píriz",
+  "homepage": "https://github.com/ucudal/GradingAgent_VSCode_Extension",
+  "license": "MIT",
+  "keywords": [
+    "grading agent",
+    "grading",
+    "copilot",
+    "assignment",
+    "education",
+    "moodle"
+  ],
   "icon": "icon.jpeg",
   "engines": {
     "vscode": "^1.108.1"
   },
+  "extensionKind": ["ui"],
   "categories": [
     "Other"
   ],
@@ -16,19 +33,19 @@
     "commands": [
       {
         "command": "gradingagent.extractRepos",
-        "title": "Grading Agente: Extract Student's Repositories"
+        "title": "Grading Agent: Extract Students' Repositories"
       },
       {
         "command": "gradingagent.cloneRepos",
-        "title": "Grading Agent: Clone Student's Repositories"
+        "title": "Grading Agent: Clone Students' Repositories"
       },
       {
         "command": "gradingagent.deleteRepos",
-        "title": "Grading Agent: Delete Cloned Student's Repositories"
+        "title": "Grading Agent: Delete Cloned Students' Repositories"
       },
       {
-        "command": "gradingagnet.openGradingAgent",
-        "title": "Grading Agent: Open GradingAgent"
+        "command": "gradingagent.openGradingAgent",
+        "title": "Grading Agent: Open Grading Agent"
       },
       {
         "command": "gradingagent.gradeSubmission",

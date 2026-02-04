@@ -168,7 +168,7 @@ async function cloneRepository(repoUrl: string, targetPath: string): Promise<voi
 
 		const command = `git clone "${repoUrl}" "${targetPath}"`;
 
-		exec(command, (error: Error | null, stdout: string, stderr: string) => {
+		exec(command, (error: Error | null, _stdout: string, stderr: string) => {
 			if (error) {
 				reject(new Error(stderr || error.message));
 				return;

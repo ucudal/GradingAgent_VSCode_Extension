@@ -1,9 +1,12 @@
 # Change Log
 
-All notable changes to the "gradingagent" extension will be documented in this file.
+## [0.0.1] - 2026-02-04
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
+### Added
 
 - Initial release
+- Extract student repositories from Moodle submissions
+- Clone student repositories locally
+- Delete cloned repositories
+- Open and manage grading agents
+- Grade submissions with GitHub Copilot Custom Agents
