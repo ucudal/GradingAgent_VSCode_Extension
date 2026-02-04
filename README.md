@@ -14,22 +14,41 @@ This extension assumes:
   [assignment
   submissions](https://docs.moodle.org/501/en/Using_Assignment#Downloading_student_submissions).
 
-* That folder has a subfolder for each student.
+* That folder has a subfolder for each student submission.
 
-* Each subfolder has a file ending with the suffix `_assignsubmission_onlinetext`
-  with a link to a remote repository with the student's solution to the assignment; or
-  it has the actual files with the solution to the assignment.
+* Each subfolder has a file ending with the suffix
+  `_assignsubmission_onlinetext` with a link to a remote repository with the
+  student's solution to the assignment; or it has the actual files with the
+  solution to the assignment.
 
-* Teacher has created an `agent.md` file with the GitHub Copilot Custom Agent
+  In the first case, the assignment in Moodle has been configured to accept
+  online text only. In the second case, the assignment is configured to accept
+  files.
+
+* Teacher already has an `.agent.md` file with the GitHub Copilot Custom Agent
   for grading students' submissions. This extension will copy the file in the
-  appropriate location.
+  appropriate location, ready to be used by grading command. See [Grading Agent
+  Example](#grading-agent-example) below.
+
+* The provided grading agent creates a `.md` file in each student submission
+  folder with the feedback or rationale behind the grade. This extension can
+  delete those files and file names can be configured.
+
+* The provided grading agent creates a `.csv` file in the workspace folder with
+  a summary of all grades. This extension can delete that file and file name can
+  be configured.
+
+* The rubric used to evaluate and grade the assignments is provided either in
+  the grading agent or in a sepparate file referenced by the grading agent. The
+  rubrics can even be in each student submission -e.g. students cloned or forked
+  a repo with the rubric in it.
 
 ## Features
 
 * The command **Grading Agent: Extract Students' Repositories** looks for files
-  with the suffix `_assignsubmission_onlinetext` in subfolders and creates a
-  `students_repos.json` file with the links to the repositories. A `.csv` and a
-  `.txt` file with the same information are also created.
+  named `onlinetext.html` in subfolders and creates a `students_repos.json` file
+  with the links to the repositories. A `.csv` and a `.txt` file with the same
+  information are also created.
 
 * The command **Grading Agent: Clone Students' Repositories** clones each
   repository in a `repo` folder in each subfolder. Links to the repositories are
@@ -39,23 +58,22 @@ This extension assumes:
   previously cloned repositories.
 
 * The command **Grading Agent: Open Grading Agent** copies the selected file to
-  the appropriate location. See [Grading Agent Example](#grading-agent-example)
-  below.
+  the appropriate location to be used by the **Grading Agent: Grade Submission**
+  command. See [Grading Agent Example](#grading-agent-example) below.
+
+* The command **Grading Agent: Configure Chat Auto Approve** configures Visual
+  Studio Code settings to auto-approve dotnet commands in the GitHub Copilot
+  chat window.
 
 * The command **Grading Agent: Grade Submission** opens the [Github Copilot chat
   window](https://code.visualstudio.com/docs/copilot/chat/getting-started-chat)
   and pastes a prompt to use the provided grading agent to grade the opened
-  submission. The user should send the prompt to GitHub Copilot chat window.
-
-* The command **Grading Agent: Configure Chat Auto Approve** configures Visual
-  Studio Code settings to auto-approve dotnet commands in the chat window.
+  submission. The user should send the prompt to GitHub Copilot.
 
 * The command **Grading Agent: Delete Grades** deletes grade files from the
   workspace and student folders. These files are generated from the grading
-  agent, so any name is valid; see the [grading agent
-  example](#grading-agent-example) below. This extension assumes there is a
-  `grades.csv` file in the workspace folder and a `GRADE.md`, but names can be
-  configured; see [configuration](#configuration) below.
+  agent, and file names can be configured. See [grading agent
+  example](#grading-agent-example) and [configuration](#configuration) below.
 
 ## Requirements
 
@@ -73,19 +91,18 @@ assignment submission.
 
 Here's a complete grading agent:
 
-```markdown
+```text
 ---
 name: 'Grading Agent'
 description: 'This agent grades students assignments based on a rubric.'
 tools: ["read", "search", "edit", "execute"]
 ---
-
 # Instructions
 
 You're a teaching assistant in a programming course.
 
-Your task is to grade student assignments based on the rubric in
-[this file](../../README.md) to evaluate and calculate points.
+Your task is to grade student assignments based on the rubric in the `README.md`
+file in each student submission to evaluate and calculate points.
 
 The assignment is in the folder where the currently opened file is located.
 
@@ -108,30 +125,36 @@ In addition to the rubric:
   instructions.
 
 There should be a [grades.csv](../../grades.csv) file, if not, create one. In
-that file, add a new line with the student identifier and the grade assigned.
-Folder names and student's identifiers are [here](../../students_repos.json)
+that file, add a new line with the student's name and identifier, and the grade
+assigned. Folder names and student's identifiers are
+[here](../../students_repos.json)
 
 In the assignment submission folder, create a GRADE.md file with an explanation
 of the score. The language should be Spanish.
 ```
 
 In order for this grading agent example to work, there should be a `README.md`
-file in the folder opened in Visual Studio Code, or a `README.md` in each
-subfolder, with the instructions for the assigment given to the students and a
-rubric with the grading criteria.
+in each subfolder, with the instructions for the assigment given to the students
+and a rubric with the grading criteria. The grading agent can be easily adapted
+to use a `README.md` file with the rubric in the workspace folder opened in
+Visual Studio Code. The rubric can be also included right in the grading agent
+file.
 
 References to files used by the grading agent are included as markdown links.
 
-In this example all grades are collected in a `grades.csv` file in the folder
-opened in Visual Studio Code; it has the format that Moodle uses to import
-grades.
+In this example all grades are collected in a `grades.csv` file in the workspace
+folder opened in Visual Studio Code; it has the format that Moodle uses to
+import grades, but the grading agent can be modified to export in any format;
+just use natural langague to describe your format.
 
 The feedback for each submission is generated in a `GRADE.md` file in each
-subfolder.
+subfolder; again, just use natural language to describe the structure of this
+file if needed.
 
 ## Configuration
 
-You can customize the grade file names through Visual Studio Code settings:
+You can customize the generated grade file names through Visual Studio Code
+settings, to match the ones used in your grading agent:
 
 **Workspace configuration**, in `.vscode/settings.json`:
 ```json
