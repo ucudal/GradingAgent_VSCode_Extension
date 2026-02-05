@@ -87,8 +87,6 @@ A GitHub Copilot Pro subscription is required in order to run the grading agent.
 A grading agent is just a Markdown file with instructions to grade an
 assignment submission.
 
-Here's a complete grading agent:
-
 ```text
 ---
 name: 'Grading Agent'
@@ -107,47 +105,33 @@ The assignment is in the folder where the currently opened file is located.
 Explain the reasoning behind the score, including what's done well and what's
 wrong or needs improvement in student's submission.
 
-In addition to the rubric:
-
-* If the code doesn't compile, grade is always 0.
-
-* If there are tests and they don't pass, grade is always 0.
-
-* If there are compiler warnings, deduct 2 points total from the final
-  grade.
-
-* If there are logic errors, even if tests pass, deduct 2 points from the final
-  grade, for each logic error found.
-
-* Do not deduct points for issues not mentioned in the rubric or in these
-  instructions.
-
 There should be a [grades.csv](../../grades.csv) file, if not, create one. In
 that file, add a new line with the student's name and identifier, and the grade
 assigned. Folder names and student's identifiers are
 [here](../../students_repos.json)
 
 In the assignment submission folder, create a GRADE.md file with an explanation
-of the score. The language should be Spanish.
+of the score.
 ```
 
 In order for this grading agent example to work, there should be a `README.md`
 in each subfolder, with the instructions for the assigment given to the students
 and a rubric with the grading criteria. The grading agent can be easily adapted
-to use a `README.md` file with the rubric in the workspace folder opened in
-Visual Studio Code. The rubric can be also included right in the grading agent
-file.
+to use a `.md` file with the rubric in the workspace folder opened in Visual
+Studio Code. The rubric can be also included right in the grading agent file.
 
 References to files used by the grading agent are included as markdown links.
 
-In this example all grades are collected in a `grades.csv` file in the workspace
-folder opened in Visual Studio Code; it has the format that Moodle uses to
-import grades, but the grading agent can be modified to export in any format;
-just use natural langague to describe your format.
+In this example, all grades are collected in a `grades.csv` file in the
+workspace folder opened in Visual Studio Code; it has the format that Moodle
+uses to import grades, but the grading agent can be modified to export in any
+format; just use natural langague to describe your format.
 
 The feedback for each submission is generated in a `GRADE.md` file in each
 subfolder; again, just use natural language to describe the structure of this
 file if needed.
+
+A [complete grading agent](/assets/grade.agent.md) is included in the repository.
 
 ## Configuration
 
