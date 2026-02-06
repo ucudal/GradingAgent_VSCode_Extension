@@ -60,6 +60,10 @@
       {
         "command": "gradingagent.deleteGrades",
         "title": "Grading Agent: Delete Grades"
+      },
+      {
+        "command": "gradingagent.enableInstructionsAndAgents",
+        "title": "Grading Agent: Enable Instructions and Agents"
       }
     ],
     "configuration": {

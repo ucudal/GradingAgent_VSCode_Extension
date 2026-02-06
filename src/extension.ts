@@ -6,6 +6,7 @@ import { registerOpenGradingAgentCommand } from './commands/openGradingAgent';
 import { registerGradeSubmissionCommand } from './commands/gradeSubmission';
 import { registerConfigureChatAutoApproveCommand } from './commands/configureChatAutoApprove';
 import { registerDeleteGradesCommand } from './commands/deleteGrades';
+import { registerEnableInstructionsCommand } from './commands/enableInstructions';
 
 /**
  * Extension activation
@@ -22,6 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
 	registerGradeSubmissionCommand(context);
 	registerConfigureChatAutoApproveCommand(context);
 	registerDeleteGradesCommand(context);
+	registerEnableInstructionsCommand(context);
 }
 
 /**
