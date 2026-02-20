@@ -67,6 +67,7 @@ export function registerCloneReposCommand(context: vscode.ExtensionContext): voi
 			}
 
 			// Clone repositories with progress
+			const authHeader = await getGithubAuthHeader(validStudents);
 			let successCount = 0;
 			let failureCount = 0;
 			const failures: { student: string; error: string }[] = [];
@@ -118,7 +119,7 @@ export function registerCloneReposCommand(context: vscode.ExtensionContext): voi
 						fs.mkdirSync(repoFolder, { recursive: true });
 
 						// Clone repository into the repo subfolder
-						await cloneRepository(student.repositorio, repoFolder);
+						await cloneRepository(student.repositorio, repoFolder, authHeader);
 
 						successCount++;
 
@@ -162,13 +163,18 @@ export function registerCloneReposCommand(context: vscode.ExtensionContext): voi
 /**
  * Clones a git repository to the target path
  */
-async function cloneRepository(repoUrl: string, targetPath: string): Promise<void> {
+async function cloneRepository(repoUrl: string, targetPath: string, authHeader?: string): Promise<void> {
 	return new Promise((resolve, reject) => {
-		const { exec } = require('child_process');
+		const { execFile } = require('child_process');
+		const args: string[] = [];
 
-		const command = `git clone "${repoUrl}" "${targetPath}"`;
+		if (authHeader && isGithubHttpsRepo(repoUrl)) {
+			args.push('-c', `http.extraHeader=${authHeader}`);
+		}
 
-		exec(command, (error: Error | null, _stdout: string, stderr: string) => {
+		args.push('clone', repoUrl, targetPath);
+
+		execFile('git', args, { env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }, (error: Error | null, _stdout: string, stderr: string) => {
 			if (error) {
 				reject(new Error(stderr || error.message));
 				return;
@@ -176,4 +182,34 @@ async function cloneRepository(repoUrl: string, targetPath: string): Promise<voi
 			resolve();
 		});
 	});
+}
+
+function isGithubHttpsRepo(repoUrl: string): boolean {
+	try {
+		const parsed = new URL(repoUrl);
+		return parsed.protocol === 'https:' && parsed.hostname.toLowerCase() === 'github.com';
+	} catch {
+		return false;
+	}
+}
+
+async function getGithubAuthHeader(students: StudentSubmission[]): Promise<string | undefined> {
+	const needsGithubAuth = students.some(student => isGithubHttpsRepo(student.repositorio));
+
+	if (!needsGithubAuth) {
+		return undefined;
+	}
+
+	try {
+		const session = await vscode.authentication.getSession('github', ['repo'], { createIfNone: true });
+		if (!session?.accessToken) {
+			return undefined;
+		}
+
+		const basic = Buffer.from(`x-access-token:${session.accessToken}`).toString('base64');
+		return `AUTHORIZATION: basic ${basic}`;
+	} catch {
+		vscode.window.showWarningMessage('GitHub sign-in was skipped. Private repositories may fail to clone.');
+		return undefined;
+	}
 }
