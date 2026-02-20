@@ -73,6 +73,12 @@ This extension assumes:
   agent, and file names can be configured. See [grading agent
   example](#grading-agent-example) and [configuration](#configuration) below.
 
+* The command **Grading Agent: Enable Instructions and Agent** disables or
+  enables `*instructions.md` files and grading agent file so they are ignored by
+  GitHub Copilot. The command displays the list of avaible files and lets the
+  user check or uncheck any of them. All files are initially enabled. This
+  extensions disables files by renaming them.
+
 ## Requirements
 
 This extension has been tested in Visual Studio Code version 1.108.
