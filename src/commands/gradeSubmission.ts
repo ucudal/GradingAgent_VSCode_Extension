@@ -130,7 +130,7 @@ export function registerGradeSubmissionCommand(context: vscode.ExtensionContext)
 			}
 
 			// Prepare the prompt with agent reference
-			const prompt = `@grade.agent grade the submission located at ${slnPath}`;
+			const prompt = `@grade.agent grade the submission located at ${slnPath}. Execute all tools in ${path.dirname(slnPath)}.`;
 
 			// Copy prompt to clipboard
 			await vscode.env.clipboard.writeText(prompt);
@@ -150,10 +150,11 @@ export function registerGradeSubmissionCommand(context: vscode.ExtensionContext)
 				// Paste the prompt into chat
 				await vscode.commands.executeCommand('editor.action.clipboardPasteAction');
 			}
-	} catch (error) {
-		const errorMsg = error instanceof Error ? error.message : String(error);
-		vscode.window.showErrorMessage(`Error grading submission: ${errorMsg}`);
-	}
+		} catch (error) {
+			const errorMsg = error instanceof Error ? error.message : String(error);
+			vscode.window.showErrorMessage(`Error grading submission: ${errorMsg}`);
+		}
 	});
 
-	context.subscriptions.push(disposable);}
+	context.subscriptions.push(disposable);
+}
