@@ -66,6 +66,19 @@ export function registerCloneReposCommand(context: vscode.ExtensionContext): voi
 				return;
 			}
 
+			// Ask for the deadline to checkout (empty means latest commit)
+			const deadlineInput = await vscode.window.showInputBox({
+				prompt: 'Deadline (YYYY-MM-DD [HH:MM], default time 23:59). Leave empty for latest commit',
+				placeHolder: 'YYYY-MM-DD 23:59',
+				validateInput: validateDeadline
+			});
+
+			if (deadlineInput === undefined) {
+				return;
+			}
+
+			const deadline = normalizeDeadline(deadlineInput);
+
 			// Clone repositories with progress
 			const authHeader = await getGithubAuthHeader(validStudents);
 			let successCount = 0;
@@ -74,7 +87,7 @@ export function registerCloneReposCommand(context: vscode.ExtensionContext): voi
 
 			await vscode.window.withProgress({
 				location: vscode.ProgressLocation.Notification,
-				title: 'Cloning student repositories',
+				title: 'Cloning and checking out student repositories',
 				cancellable: true
 			}, async (progress, token) => {
 
@@ -106,7 +119,8 @@ export function registerCloneReposCommand(context: vscode.ExtensionContext): voi
 							// Check if it's already a git repository
 							const gitPath = path.join(repoFolder, '.git');
 							if (fs.existsSync(gitPath)) {
-								console.log(`Skipping ${student.nombre} - repository already cloned`);
+								// Already cloned: fetch latest changes and checkout at deadline
+								await checkoutAtDeadline(repoFolder, deadline, student.repositorio, authHeader);
 								successCount++;
 								continue;
 							} else {
@@ -121,6 +135,9 @@ export function registerCloneReposCommand(context: vscode.ExtensionContext): voi
 						// Clone repository into the repo subfolder
 						await cloneRepository(student.repositorio, repoFolder, authHeader);
 
+						// Checkout the last commit before the deadline
+						await checkoutAtDeadline(repoFolder, deadline, student.repositorio, authHeader);
+
 						successCount++;
 
 					} catch (error) {
@@ -134,6 +151,7 @@ export function registerCloneReposCommand(context: vscode.ExtensionContext): voi
 
 			// Show summary after progress completes
 			let summaryMessage = `✅ Cloning completed!\n\n` +
+				`Checked out at: ${deadline ?? 'latest commit'}\n` +
 				`Success: ${successCount}/${validStudents.length}\n` +
 				`Failed: ${failureCount}/${validStudents.length}`;
 
@@ -164,24 +182,94 @@ export function registerCloneReposCommand(context: vscode.ExtensionContext): voi
  * Clones a git repository to the target path
  */
 async function cloneRepository(repoUrl: string, targetPath: string, authHeader?: string): Promise<void> {
+	await runGit(['clone', repoUrl, targetPath], undefined, repoUrl, authHeader);
+}
+
+/**
+ * Fetches the latest changes and checks out (detached) the last commit of the
+ * default branch before the deadline, or the latest commit if no deadline is given
+ */
+async function checkoutAtDeadline(repoFolder: string, deadline: string | undefined, repoUrl: string, authHeader?: string): Promise<void> {
+	await runGit(['fetch', 'origin', '--prune'], repoFolder, repoUrl, authHeader);
+
+	// Make sure origin/HEAD points to the remote default branch
+	try {
+		await runGit(['rev-parse', '--verify', '--quiet', 'origin/HEAD'], repoFolder);
+	} catch {
+		await runGit(['remote', 'set-head', 'origin', '--auto'], repoFolder, repoUrl, authHeader);
+	}
+
+	let target = 'origin/HEAD';
+
+	if (deadline) {
+		const sha = (await runGit(['rev-list', '-n', '1', `--before=${deadline}`, 'origin/HEAD'], repoFolder)).trim();
+		if (!sha) {
+			throw new Error(`No commits before ${deadline}`);
+		}
+		target = sha;
+	}
+
+	await runGit(['-c', 'advice.detachedHead=false', 'checkout', '--detach', target], repoFolder);
+}
+
+/**
+ * Runs a git command and returns its stdout. Adds the GitHub auth header when needed
+ */
+function runGit(args: string[], cwd?: string, repoUrl?: string, authHeader?: string): Promise<string> {
 	return new Promise((resolve, reject) => {
 		const { execFile } = require('child_process');
-		const args: string[] = [];
+		const gitArgs: string[] = [];
 
-		if (authHeader && isGithubHttpsRepo(repoUrl)) {
-			args.push('-c', `http.extraHeader=${authHeader}`);
+		if (authHeader && repoUrl && isGithubHttpsRepo(repoUrl)) {
+			gitArgs.push('-c', `http.extraHeader=${authHeader}`);
 		}
 
-		args.push('clone', repoUrl, targetPath);
+		gitArgs.push(...args);
 
-		execFile('git', args, { env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }, (error: Error | null, _stdout: string, stderr: string) => {
+		execFile('git', gitArgs, { cwd, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }, (error: Error | null, stdout: string, stderr: string) => {
 			if (error) {
 				reject(new Error(stderr || error.message));
 				return;
 			}
-			resolve();
+			resolve(stdout);
 		});
 	});
+}
+
+/**
+ * Validates a deadline in the format YYYY-MM-DD [HH:MM]. Empty is valid (latest commit)
+ */
+function validateDeadline(value: string): string | undefined {
+	const trimmed = value.trim();
+	if (!trimmed) {
+		return undefined;
+	}
+
+	const match = /^(\d{4})-(\d{2})-(\d{2})(?: (\d{1,2}):(\d{2}))?$/.exec(trimmed);
+	if (!match) {
+		return 'Use the format YYYY-MM-DD or YYYY-MM-DD HH:MM';
+	}
+
+	const [, year, month, day, hour = '23', minute = '59'] = match;
+	const date = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute));
+	const isValid = date.getFullYear() === Number(year) &&
+		date.getMonth() === Number(month) - 1 &&
+		date.getDate() === Number(day) &&
+		date.getHours() === Number(hour) &&
+		date.getMinutes() === Number(minute);
+
+	return isValid ? undefined : 'Invalid date or time';
+}
+
+/**
+ * Returns the deadline with time (23:59 by default), or undefined if empty
+ */
+function normalizeDeadline(value: string): string | undefined {
+	const trimmed = value.trim();
+	if (!trimmed) {
+		return undefined;
+	}
+	return trimmed.includes(' ') ? trimmed : `${trimmed} 23:59`;
 }
 
 function isGithubHttpsRepo(repoUrl: string): boolean {
