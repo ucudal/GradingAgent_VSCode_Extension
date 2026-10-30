@@ -2,7 +2,7 @@
   "name": "gradingagent",
   "displayName": "Grading Agent",
   "description": "An extension to automate grading of programming assignments as much as possible",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "fmachadopiriz",
   "repository": {
     "type": "git",
